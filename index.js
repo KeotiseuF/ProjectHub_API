@@ -35,13 +35,13 @@ if (checkIsProd) {
   https.createServer(options, app1).listen(port1, async () => {
     let options = new chrome.Options();
     options.addArguments('--headless');
-    options.addArguments('disable-gpu'); // Applicable only for Windows OS
-    options.addArguments('no-sandbox');
-    options.addArguments('disable-dev-shm-usage');
+    options.addArguments('--disable-gpu'); // Applicable only for Windows OS
+    options.addArguments('--no-sandbox');
+    options.addArguments('--disable-dev-shm-usage');
     options.addArguments('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
     options.addArguments('accept-language=en-US,en;q=0.9');
     options.addArguments('window-size=1920,1080');
-    options.addArguments('disable-blink-features=AutomationControlled');
+    options.addArguments('--disable-blink-features=AutomationControlled');
 
     let driver = await new Builder()
       .forBrowser('chrome')
