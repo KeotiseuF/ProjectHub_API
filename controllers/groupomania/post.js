@@ -85,7 +85,7 @@ exports.likePost = (req, res, next) => {
   .then((post) => {
     const userLiked = post.usersLiked.find((user) => user == req.auth.userId);
     const userDisliked = post.usersDisliked.find((user) => user == req.auth.userId);
-
+    
     if(userLiked && userDisliked) return res.status(400).json({ error });
 
     const like = {
@@ -100,7 +100,6 @@ exports.likePost = (req, res, next) => {
 
   } else if(req.body.like === -1) {
     delete req.body._userId;
-
     Post.findOne({ _id: req.params.id })
     .then((post) => {
       const userDisliked = post.usersDisliked.find((user) => user == req.auth.userId);
