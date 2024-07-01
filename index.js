@@ -34,7 +34,7 @@ mongoose.connect("mongodb+srv://" + MY_ID_MANGO_DB + ":" + MY_PASSWORD_MANGO_DB 
 if (checkIsProd) {
   https.createServer(options, app1).listen(port1, async () => {
     let options = new chrome.Options();
-    options.addArguments('headless');
+    options.addArguments('--headless');
     options.addArguments('disable-gpu'); // Applicable only for Windows OS
     options.addArguments('no-sandbox');
     options.addArguments('disable-dev-shm-usage');
