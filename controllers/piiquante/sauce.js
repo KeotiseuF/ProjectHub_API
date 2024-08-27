@@ -1,7 +1,7 @@
 const Sauce = require("../../models/piiquante/Sauce");
 const fs = require("fs");
 
-exports.newSauce = (req, res, next) => {
+exports.newSauce = (req, res) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
   delete sauceObject._userId;
@@ -16,7 +16,7 @@ exports.newSauce = (req, res, next) => {
   .catch(error => res.status(400).json({error}));
 };
 
-exports.modifySauce = (req, res, next) => {
+exports.modifySauce = (req, res) => {
   const sauceObject = req.file ? { 
     ...JSON.parse(req.body.sauce),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
@@ -24,7 +24,7 @@ exports.modifySauce = (req, res, next) => {
   delete sauceObject._userId;
   Sauce.findOne({_id: req.params.id})
   .then((sauce) => {
-    if(sauce.userId != req.auth.userId) return res.status(403).json({error});
+    if(sauce.userId != req.auth.userId) throw new Error("User can't modify this sauce.");
 
     Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
     .then(() =>  {
@@ -37,10 +37,10 @@ exports.modifySauce = (req, res, next) => {
   .catch((error) => res.status(400).json({ error }));
 };
 
-exports.deleteSauce = (req, res, next) => {
+exports.deleteSauce = (req, res) => {
   Sauce.findOne({_id: req.params.id})
   .then(sauce => {
-    if(sauce.userId != req.auth.userId) return res.status(403).json({error});
+    if(sauce.userId != req.auth.userId) throw new Error("User can't delete this sauce.");
 
     const filename = sauce.imageUrl.split("/images/")[1];
     fs.unlink(`images/${filename}`, () => {
@@ -52,19 +52,19 @@ exports.deleteSauce = (req, res, next) => {
   .catch((error) => res.status(400).json({ error }));
 };
 
-exports.getOneSauce = (req, res, next) => {
+exports.getOneSauce = (req, res) => {
   Sauce.findOne({_id: req.params.id})
   .then(sauce => res.status(200).json(sauce))
   .catch(error => res.status(404).json({error}));
 };
 
-exports.getAllSauces = (req, res, next) => {
+exports.getAllSauces = (req, res) => {
   Sauce.find()
   .then(sauces => res.status(200).json(sauces))
   .catch(error => res.status(400).json({error}));
 };
 
-exports.likeSauce = (req, res, next) => {
+exports.likeSauce = (req, res) => {
   if(req.body.like === 1) {
     delete req.body._userId;
     Sauce.findOne({_id: req.params.id})

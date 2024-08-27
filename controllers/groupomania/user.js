@@ -4,7 +4,7 @@ const User = require("../../models/groupomania/User");
 
 const MY_APP_SECRET = process.env.APP_SECRET;
 
-exports.signup = (req, res, next) => {
+exports.signup = (req, res) => {
   bcrypt
   .hash(req.body.password, 10) 
   .then((hash) => {
@@ -21,14 +21,14 @@ exports.signup = (req, res, next) => {
   .catch((error) => res.status(500).json({ error }));
 };
 
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
   User.findOne({ email: req.body.email })
   .then((user) => {
-    if(!user) return res.status(401).json({ error });
+    if(!user) throw new Error("An error occured with the login.");
 
     bcrypt.compare(req.body.password, user.password)
     .then((valid) => {
-      if(!valid) return res.status(401).json({ error });
+      if(!valid) throw new Error("An error occured with the login.");
 
       res.status(200).json({
         userId: user._id,

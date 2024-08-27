@@ -33,7 +33,7 @@ exports.createExcel = async (req, res) => {
   cryptos.forEach((crypto, id) => {
     let buyPrice = 0;
     let nbAsset = 0;
-    let getValueInvest = crypto.buyPrice?.split('$')[1];
+    const getValueInvest = crypto.buyPrice?.split('$')[1];
 
     const checkNumber = crypto.invest.split(' ').length > 2 ?
     takeOffEmptyOfNumber(crypto.invest) :
@@ -77,7 +77,7 @@ exports.createExcel = async (req, res) => {
   const checkStockCrypto = stockData.length > 0 && cryptoData.length > 0;
 
   const indexTitleCrypto = stockData.length + 3;
-  let titleCell = ['A2', 'B2', 'C2', 'D2'];
+  const titleCell = ['A2', 'B2', 'C2', 'D2'];
 
   if(checkStockCrypto) {
     titleCell.push(
@@ -176,3 +176,13 @@ exports.createExcel = async (req, res) => {
 
   res.send(buffer);
 };
+
+const takeOffEmptyOfNumber = (string) => {
+  let number = string;
+  let lengthString = number.length;
+  const symbol = string.split(' ')[--lengthString];
+  
+  number = number.replaceAll(" ", '');
+  number = number.replace(symbol, '');
+  return number;
+}
