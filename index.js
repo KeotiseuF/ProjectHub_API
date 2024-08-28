@@ -19,8 +19,8 @@ const checkIsProd = process.env.PROD === 'true';
 let options = undefined;
 
 const limiter = new RateLimiter({
-  tokensPerInterval: 250,
-  interval: "hour",
+  tokensPerInterval: Number(process.env.MAX_REQUEST),
+  interval: process.env.INTERVAL_REQUEST,
   fireImmediately: true
 });
 

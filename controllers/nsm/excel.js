@@ -3,8 +3,8 @@ const Excel = require('exceljs');
 exports.createExcel = async (req, res) => {
   const numberFormat = new Intl.NumberFormat('en-US');
 
-  const stocks = await req.body.data.stocks || [];
-  const cryptos = await req.body.data.cryptos || [];
+  const stocks = await req.body.stocks || [];
+  const cryptos = await req.body.cryptos || [];
   const stockData = [];
   const cryptoData = [];
   // Redifine properties stock object
@@ -174,7 +174,7 @@ exports.createExcel = async (req, res) => {
 
   const buffer = await workbook.xlsx.writeBuffer();
 
-  res.send(buffer);
+  res.status(201).send(buffer);
 };
 
 const takeOffEmptyOfNumber = (string) => {
