@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require("path");
+const requestHandler = require("./middlewares/limiter");
 
 const userRoutes = require("./routes/groupomania/user");
 const postRoutes = require("./routes/groupomania/post");
@@ -11,7 +12,7 @@ const corsOptions = {
 }
 
 app2.use(cors(corsOptions), express.json());
-
+app2.use(requestHandler);
 app2.use(express.urlencoded({ extended: true }));
 
 app2.use('/api_2/auth', userRoutes);
