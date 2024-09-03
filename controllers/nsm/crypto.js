@@ -24,10 +24,14 @@ exports.getCryptos = async (req, res) => {
 };
 
 exports.getHistoricalData = async (req, res) => {
-  let data = req.body;
+  const data = req.body;
   const cryptos = data.cryptos;
+  const options = new chrome.Options();
+  let isAborted = false;
 
-  let options = new chrome.Options();
+  req.socket.on('close', () => {
+    isAborted = true;
+  })
 
   options.addArguments('--headless');
   options.addArguments('--disable-gpu'); // Applicable only for Windows OS
@@ -38,37 +42,42 @@ exports.getHistoricalData = async (req, res) => {
   options.addArguments('window-size=1920,1080');
   options.addArguments('--disable-blink-features=AutomationControlled');
 
-  let driver = await new Builder()
+  const driver = await new Builder()
   .forBrowser('chrome')
   .setChromeOptions(options)
   .build();
 
-  cryptos.forEach((crypto, idCrypto) => {
-    setTimeout(async () => {
+  for(const crypto of cryptos) {
+    try {
+      const idCrypto = Number(crypto.id.split('-')[1]);
+
+      if(isAborted) {
+        console.log('Session Chrome aborted');
+        await driver.quit();
+        return;
+      };
       let asset = crypto.name.split('/')[0].toLowerCase().trim();
       if(asset.includes(' ')) asset = asset.replaceAll(' ', '-');
+      await driver.get(`https://www.coingecko.com/en/coins/${asset}/historical_data?start=${crypto.date}&end=${crypto.date}`);
+      const lineData = await driver.findElements(By.css('td'));
+      const isLast = cryptos.length === idCrypto + 1;
 
-      try {
-        await driver.get(`https://www.coingecko.com/en/coins/${asset}/historical_data?start=${crypto.date}&end=${crypto.date}`);
-        const lineData = await driver.findElements(By.css('td'));
-        const isLast = cryptos.length === idCrypto + 1;
+      if(await lineData[3]?.getText() && !isLast) {
+        cryptos[idCrypto].buyPrice = await lineData[3].getText();
+      } else if(isLast) {
+        if(await lineData[3]?.getText()) cryptos[idCrypto].buyPrice = await lineData[3].getText();
+        else cryptos[idCrypto].buyPrice = '';
 
-        if(await lineData[3]?.getText() && !isLast) {
-          cryptos[idCrypto].buyPrice = await lineData[3].getText();
-        } else if(isLast) {
-          if(await lineData[3]?.getText()) cryptos[idCrypto].buyPrice = await lineData[3].getText();
-          else cryptos[idCrypto].buyPrice = '';
-
-          await driver.quit();
-          data.cryptos = cryptos;
-          console.log('Historical data OK !');
-          return res.send(data);
-        } else {
-          cryptos[idCrypto].buyPrice = '';
-        };
-      } catch {
-        console.error('ERROR Historical data');
-      }
-    }, (idCrypto + 1) * 2000)
-  })
+        await driver.quit();
+        data.cryptos = cryptos;
+        console.log('Historical data OK !');
+        return res.send(data);
+      } else {
+        cryptos[idCrypto].buyPrice = '';
+      }; 
+    } catch(e) {
+      console.error('Error with Coingecko: ' + e);
+      res.status(418).end('Error getting historical crypto');
+    }
+  }
 };
