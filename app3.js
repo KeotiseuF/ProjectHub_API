@@ -8,7 +8,7 @@ const excelRoutes = require("./routes/nsm/excel");
 
 const app3 = express();
 const corsOptions = {
-  origin: [process.env.ORIGIN_APP_3]
+  origin: [process.env.ORIGIN_APP_3, process.env.ORIGIN_APP_3_PREVIEW]
 }
 
 app3.use(cors(corsOptions), express.json());
