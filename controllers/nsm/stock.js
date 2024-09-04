@@ -25,19 +25,19 @@ exports.getStocks = async (req, res) => {
 };
 
 exports.getArticleNYTimes = async (req, res) => {
-  const listArticle = await articleNewYorkTimes();
-  const filteredListArticle = [];
+  const listArticleCached = myCache.get("listArticleNYTimes"); 
 
-  listArticle.results.forEach((article) => {
-    filteredListArticle.push({
-      title: article.title,
-      url: article.url,
-      source: article.source,
-      first_published_date: article.first_published_date,
-    })
-  });
-
-  console.log("Articles New York Times OK !");
-
-  res.send(filteredListArticle);
+  if(listArticleCached) {
+    console.log("Use NYTimes article cached");
+  
+    res.send(listArticleCached);
+  } else {
+    const listArticle = await articleNewYorkTimes();
+  
+    console.log("New request NYTimes article");
+  
+    myCache.set("listArticleNYTimes", listArticle, 300); // Cached for 5 minutes.
+  
+    res.send(listArticle);
+  }
 };
