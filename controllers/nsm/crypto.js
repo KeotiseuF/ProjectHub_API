@@ -58,6 +58,7 @@ exports.getHistoricalData = async (req, res) => {
       };
       let asset = crypto.name.split('/')[0].toLowerCase().trim();
       if(asset.includes(' ')) asset = asset.replaceAll(' ', '-');
+      if(asset.includes('.')) asset = asset.replaceAll('.', '-');
       await driver.get(`https://www.coingecko.com/en/coins/${asset}/historical_data?start=${crypto.date}&end=${crypto.date}`);
       const lineData = await driver.findElements(By.css('td'));
       const isLast = cryptos.length === idCrypto + 1;
